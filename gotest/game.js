@@ -33,39 +33,150 @@ var Game =  function() {
 
 
   function judgeCall(crtBrd,flg){
-      var win;
+
+      var win = false;
+
       for(var i=0; i<crtBrd.length; i++){
-        if(crtBrd[i].every(function(e){return e.includes(flg);})){
-          win = crtBrd[i];
-          break;
+        var cter = 0;
+        for(var j=0; j<crtBrd.length; j++){
+          if(crtBrd[i][j].includes(flg)){
+            cter++;
+            if(cter === 5){
+              var t5 = 0;
+              win = [];
+              while(t5 < 5){
+                win.push(crtBrd[i][j-t5]);
+                t5++;
+              }
+              return win;
+            }
+          }else{
+            cter = 0;
+          }
         }
-          win = false;
       }
       return win;
     }
 
     function checkDiag(crtBrd,flg){
-      var diag = [];
       var win = false;
-      for(var i=0; i<crtBrd.length; i++){
-        diag.push(crtBrd[i][i]);
+
+      var lth = crtBrd.length;
+      //check above + diag
+
+      for(var j = 0; j < lth; j++){
+        var cter = 0;
+        var i = 0;
+        var l = j;
+        while(l < lth){
+          if(crtBrd[i][l].includes(flg)){
+            cter++;
+            if(cter === 5){
+              var t5 = 0;
+              win = [];
+              console.log(i +" "+ l);
+              //while loop here
+              while(t5 < 5){
+                win.push(crtBrd[i-t5][l-t5]);
+                t5++;
+              }
+              return win;
+            }
+          }else{
+            cter = 0;
+          }
+          l++;
+          i++;
+        }
       }
-      if(diag.every(function(e){return e.includes(flg);})){
-        win = diag;
+
+
+      for(var i = 1; i < lth ; i++){
+        var cter = 0;
+        var j = 0;
+        var l = i;
+        while(l < lth){
+          if(crtBrd[l][j].includes(flg)){
+            cter++;
+            if(cter === 5){
+              var t5 = 0;
+              win = [];
+              //while loop here
+              console.log(l +" "+ j);
+              while(t5 < 5){
+                win.push(crtBrd[l-t5][j-t5]);
+                t5++;
+              }
+              return win;
+            }
+          }else{
+            cter = 0;
+          }
+          l++;
+          j++;
+        }
       }
+
       return win;
     }
 
+
+
     function checkDiagFlip(crtBrd,flg){
-      var diag = [];
       var win = false;
-      var j = 0;
-      for(var i=crtBrd.length-1; i>=0; i--){
-        diag.push(crtBrd[i][j]);
-        j++;
+
+      //check above - diag
+      for(var i = 0; i < crtBrd.length; i++){
+          var cter = 0;
+          var j = 0;
+          var l = i;
+          while(l >= 0){
+            if(crtBrd[l][j].includes(flg)){
+              cter++;
+              if(cter === 5){
+                var t5 = 0;
+                win = [];
+                console.log(l +" "+ j);
+                //while loop here
+                while(t5 < 5){
+                  win.push(crtBrd[l+t5][j-t5]);
+                  t5++;
+                }
+                return win;
+              }
+            }else{
+              cter = 0;
+            }
+            l--;
+            j++;
+          }
       }
-      if(diag.every(function(e){return e.includes(flg);})){
-        win = diag;
+
+      //check below - diag
+      for(var j = 1; j < crtBrd.length; j++ ){
+        var cter = 0;
+        var l = j;
+        var b = crtBrd.length-1
+        while(l < crtBrd.length){
+          if(crtBrd[b][l].includes(flg)){
+            cter++;
+            if(cter === 5){
+              var t5 = 0;
+              win = [];
+              console.log(l +" "+ b);
+              //while loop here
+              while(t5 < 5){
+                win.push(crtBrd[b+t5][l-t5]);
+                t5++;
+              }
+              return win;
+            }
+          }else{
+            cter = 0;
+          }
+          l++;
+          b--;
+        }
       }
       return win;
     }

@@ -22,6 +22,7 @@
     board.removeAllObjects();
     board.addEventListener("click", function(x, y) {
       console.log("over: " + game.getOver());
+      console.log(x + "-" + y);
       if(!game.getOver()){
         //invoke logic here to validate the move
         var side = game.getTurn();
