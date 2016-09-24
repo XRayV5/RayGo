@@ -15,13 +15,61 @@
 <!-- Desing from there  -->
 
 <!-- login Page -->
-  <div class="page login" id='page-login'>
+  <!-- <div class="page login" id='page-login'>
     <div class='logo'></div>
     <input id='username'></input>
     <button id='login'>Login</button>
+  </div> -->
+
+
+<!-- New Login Page -->
+
+<div id="login-page" class="row">
+    <div id="loginWrap" class="col s12 z-depth-6 card-panel">
+      <form class="login-form">
+        <div class="row">
+          <div class="input-field col s12 center">
+            <img src="img/go_face.png" alt="" class="responsive-img valign profile-image-login">
+            <h3 class="center login-form-text">The World of Go</h3>
+          </div>
+        </div>
+        <div class="row margin">
+          <div class="input-field col s12">
+            <i class="mdi-social-person-outline prefix"></i>
+            <input class="validate" id="email" type="email">
+            <label for="email" >Email</label>
+          </div>
+        </div>
+        <div class="row margin">
+          <div class="input-field col s12">
+            <i class="mdi-action-lock-outline prefix"></i>
+            <input id="password" type="password">
+            <label for="password">Password</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="input-field col s12">
+            <div href="" class="btn waves-effect waves-light col s12">Login</div>
+          </div>
+        </div>
+        <div class="row">
+        <div class="input-field col s12">
+          <p class="margin medium-small center"><a id="signup-anchor">Register Now!</a></p>
+        </div>
+          <!-- <div class="input-field col s6 m6 l6">
+              <p class="margin right-align medium-small"><a href="forgot-password.html">Forgot password?</a></p>
+          </div> -->
+        </div>
+
+      </form>
+    </div>
   </div>
 
 
+
+
+
+<!-- Lobby Page -->
   <div class="page lobby" id='page-lobby'>
     <h1>RayPlay.Net</h1>
     <h3 id='userLabel'></h3>
@@ -81,6 +129,7 @@
   </div>
 
 
+<!-- Game GUI -->
   <div class="main">
     <div class="panelLeft">
       <div id="p1">
@@ -92,14 +141,18 @@
       </div>
       <div id="p2"></div>
     </div>
+
     <div class="board">
-      <!-- Grid initialization -->
       <div class="grdgrp">
+
+
         <!--  original game board  -->
             <div id="board">
               <!-- board will go here -->
             </div>
             <button id="restart">Reset</button>
+
+
       </div>
     </div>
     <div class="panelRight">
@@ -112,13 +165,6 @@
 
 
 
-
-
-<!--  original game board  -->
-    <div id="board">
-      <!-- board will go here -->
-    </div>
-    <button id="restart">Reset</button>
 
 
 

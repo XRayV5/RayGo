@@ -4,14 +4,28 @@ body {
 	flex-flow: column;
 	align-content: center;
 	align-items: center;
-  background-color: linen;
+
+	background-color: linen;
+	background-image: url('../img/bamboo.jpg');
+	background-size: cover;
+	background-position: center center;
+
+}
+
+
+#loginWrap{
+	background-color:lightgray;
+}
+
+#signup-anchor{
+	cursor: pointer;
 }
 
 .page {
 	margin-top: 20px;
 }
 
-.page-login {
+/*.page-login {
 	display: flex;
 	flex-direction: column;
 }
@@ -45,7 +59,7 @@ body {
 		-webkit-border-radius: 5px;
 		-moz-border-radius: 5px;
 		border-radius: 5px;
-	}
+	}*/
 
 	.page.lobby h2 {
 		color: darkgrey;
@@ -107,6 +121,7 @@ body {
   height:800px;
   float: left;
 }
+
 #ctrlPanel{
   box-sizing: border-box;
   margin:auto;
