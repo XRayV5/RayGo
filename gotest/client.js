@@ -84,9 +84,6 @@
     }
   }
 
-
-
-
 //add side coord
 
 var coordinates = {
@@ -121,10 +118,29 @@ var coordinates = {
             }
 
             this.fillStyle = "black";
-		}
+    		}
+        }
     }
-}
-board.addCustomObject(coordinates);
+    board.addCustomObject(coordinates);
+
+
+    //Page management
+
+    $('#login').on('click', function() {
+        username = $('#email').val();
+
+        if (username.length > 0) {
+            $('#userLabel').text(username);
+
+            $('#login-page').hide();
+            $('#page-lobby').show();
+        }
+      });
+
+    $('#groupbtn').click(function(){
+      $('#page-lobby').hide();
+      $('.main').show();
+    })
 
 
 }
