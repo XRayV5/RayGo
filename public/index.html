@@ -1,0 +1,205 @@
+<!doctype html>
+<html>
+  <head>
+    <meta name="viewport" content="width=410; user-scalable=no; minimal-ui">
+    <title>RayPlay.Net</title>
+    <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="css/materialize.css" type="text/css">
+    <link rel="stylesheet" href="css/default.css" />
+    <link rel="stylesheet" href="css/style.css" type="text/css">
+  </head>
+  <body>
+
+
+    <div class="page login" id='page-login'>
+      <div class='logo'></div>
+      <input id='username'></input>
+      <button id='login'>Login</button>
+    </div>
+    <div class="page lobby" id='page-lobby'>
+      <h1>RayPlay.Net</h1>
+      <h3 id='userLabel'></h3>
+      <h4>Record</h4>
+
+      <table>
+        <thead>
+          <tr>
+              <th data-field="Win">Win</th>
+              <th data-field="Loss">Loss</th>
+              <th data-field="Tie">Tie</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td id='w'></td>
+            <td id='l'></td>
+            <td id='d'></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Active games</h3>
+      <ul class="collection" id="game-list">
+
+      </ul>
+
+      <ul class="collection with-header" id="playerlist">
+        <li class="collection-header"><h4>Players Online</h4></li>
+      </ul>
+
+      <div class="row">
+        <div>
+          <div class="card blue-grey darken-1">
+            <div id="chatlog" class="card-content white-text">
+              <span class="card-title">Chatbox</span>
+            </div>
+            <div class="card-action">
+              <div class="row">
+                <div class="input-field">
+                  <i class="material-icons prefix">mode_edit</i>
+                  <textarea id="icon_prefix2" class="materialize-textarea white-text"></textarea>
+                  <label for="icon_prefix2">Message</label>
+                </div>
+
+              </div>
+              <button id="sendbtn" class="btn waves-effect waves-light" type="" name="action">Send
+              <i class="material-icons right">send</i>
+              </button>
+              <button id="groupbtn" class="btn waves-effect waves-light" type="" name="action">Broadcast
+              <i class="material-icons right">volume_up</i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+  <!--  Tic Tac Toe gaming area  -->
+
+
+
+  <div class="main">
+    <div class="panelLeft">
+      <div id="p1">
+          <div class="page game" id='page-game'>
+            <button id='game-quit'>Resign</button>
+          </div>
+
+          <h3 id='turn'><h3>
+      </div>
+      <div id="p2"></div>
+    </div>
+    <div class="board">
+      <!-- Grid initialization -->
+      <div class="grdgrp">
+        <!-- <div class="grid"></div>
+        <div class="grid"></div>
+        <div class="grid"></div>
+        <div class="grid"></div>
+        <div class="grid"></div>
+        <div class="grid"></div>
+        <div class="grid"></div>
+        <div class="grid"></div>
+        <div class="grid"></div>
+        <div class="holder"></div> -->
+      </div>
+    </div>
+    <div class="panelRight">
+      <div id="ctrlPanel">
+        <button class="btnReset" id="reset">Reset</button>
+        <!-- <button class="btnElmt">?????</button> -->
+        <div class="dropdown" id="oriDrp">
+            <button class="dropbtn" id="Gmode">Game Mode</button>
+            <!-- Lines to populate  -->
+            <div class="dropdown-content" id="oriDrp1">
+                <div class="lineDiv" id="HvH">Hum Vs. Hum</div>
+                <div class="lineDiv" id="HvB">RayBot Challenge</div>
+                <div class="lineDiv" id="BvB">War of Bots</div>
+            </div>
+        </div>
+        <div class="dropdown" id="goFirstDrp">
+            <button class="dropbtn" id="GoFirst">Go First?</button>
+            <!-- Lines to populate  -->
+            <div class="dropdown-content" id="goDrp">
+                <div class="goDiv" id="H">My first go!</div>
+                <div class="goDiv" id="B">You're insane...</div>
+            </div>
+        </div>
+        <div class="dropdown" id="scale">
+            <button class="dropbtn" id="scaleOpt">More Grids?</button>
+            <!-- Lines to populate  -->
+            <div class="dropdown-content" id="scaleDrp">
+                <div class="sizeDiv" id="3">3 X 3</div>
+                <div class="sizeDiv" id="4">4 X 4</div>
+                <div class="sizeDiv" id="5">5 X 5</div>
+                <div class="sizeDiv" id="8">8 X 8</div>
+            </div>
+        </div>
+        <button class="btnReset" id="AddNew">Add New Player</button>
+     </div>
+    </div>
+    </div>
+  <div id="myModal" class="modal">
+    <!-- Modal content -->
+    <div class="modal-content">
+      <div class="modal-header" id="winner">
+        <span class="close">X</span>
+      </div>
+      <div class="modal-body">
+        <p></p>
+        <p></p>
+      </div>
+      <div class="modal-footer">
+        <button class="btnReset" id="prpReset">Try again?</button>
+        <button class="btnReset" id="prpQuit">Leave Game</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="playerPanel" class="modal">
+  <div class="modal-content">
+    <div class="modal-header" id="playerHeader">
+      <h2>Player Panel</h2>
+    </div>
+    <div class="modal-body">
+      <!-- play info here -->
+      <div class="style-5">
+        <h3>Name:</h3>
+        <input id = "pname" class="style-5" type="text" placeholder="Enter Player Name">
+      </div>
+      <div class="scoreBoard">
+        <h3>The best and brightest:</h3>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+          <button class="btnReset" id="addPlayer">Add Player</button>
+          <button class="btnReset" id="cancel">Cancel</button>
+    </div>
+  </div>
+  </div>
+
+
+
+
+
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/3.1.0/jquery.min.js"></script>
+    <script src="lib/socket.io-1.2.0.js"></script>
+    <script src="lib/materialize.js"></script>
+    <script src="ttt_draw.js"></script>
+    <script src="/default.js"></script>
+
+  </body>
+</html>

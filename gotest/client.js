@@ -31,12 +31,35 @@
         if(move !== false){
               //update/refresh the board
               renderBrd(move.board);
-              if(game.over){
+              if(game.getOver()){
                 //show win combo
+                showWinCombo(move.run);
+
               }
         }
       }
     });
+
+    $('#restart').click(function(){
+      restart();
+    })
+  }
+
+
+  function showWinCombo(arr) {
+    arr.forEach(function(e) {
+      var xy = e.split("_");
+      board.addObject({
+              x: xy[0],
+              y: xy[1],
+              type: "MA"
+          });
+    });
+  }
+
+  function restart() {
+    game.reset();
+    board.removeAllObjects();
   }
 
   function renderBrd(brd) {
@@ -87,12 +110,14 @@ var coordinates = {
                 if(ch >= "I".charCodeAt(0)) ch++;
 
                 t = board.getY(i);
-                this.fillText(board.size-i, xright, t);
-                this.fillText(board.size-i, xleft, t);
+                this.fillText(i, xright, t);
+                this.fillText(i, xleft, t);
 
                 t = board.getX(i);
-                this.fillText(String.fromCharCode(ch), t, ytop);
-                this.fillText(String.fromCharCode(ch), t, ybottom);
+                // this.fillText(String.fromCharCode(ch), t, ytop);
+                // this.fillText(String.fromCharCode(ch), t, ybottom);
+                this.fillText(i, t, ytop);
+                this.fillText(i, t, ybottom);
             }
 
             this.fillStyle = "black";

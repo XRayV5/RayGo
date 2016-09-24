@@ -246,7 +246,7 @@ var Game =  function() {
      validateMove : function(side, x, y) {
       if (turn === side && board[x][y]===""){
         //board updated
-        board[x][y] = x + "_" + y + '-' + side;
+        board[x][y] = x + "_" + y + '_' + side;
         if(side === 'B'){
           turn = 'W';
         }else{
