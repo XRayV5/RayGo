@@ -3,197 +3,84 @@
 
 
 
-      var socket, serverGame;
-      var username, playerColor;
-      var game, board;
-
-      var usersOnline = [];
-
-      var myGames = [];
+      var socket;
       socket = io();
-
-      var render;
-
-      //chat
-      var whisperTo;
 
 
       //////////////////////////////
       // Socket.io handlers
       //////////////////////////////
 
-      socket.on('login', function(msg) {
 
-            //add all online users to the page
-            console.log(msg.users);
-            usersOnline = msg.users;
-            reloadUserList();
-            reloadGameList(msg.games);
+      // Login
 
-      });
-
-      socket.on('getUser', function(user){
-        showUser(user);
-      });
-
-      //remove the user from the screen if disconnected
-      socket.on('logout', function (msg) {
-        console.log(msg.userId + "!");
-        removeUser(msg.userId);
-      });
-
-
-      socket.on('joinlobby', function (msg) {
-        //display the new user on the lobby page
-        console.log('joinlobby');
-        addUser(msg);
-      });
-
-      socket.on('leavelobby', function (msg) {
-         //when a user start a game, remove from screen
-        removeUser(msg);
-      });
-
-      socket.on('gameupdate', function(msg) {
-        console.log(msg);
-        reloadGameList(msg);
-      });
-
-
-
-
-//-------- this one starts the game!
-      socket.on('joingame', function(msg) {
-        console.log("joined as game id: " + msg.game.id );
-        playerColor = msg.color;
-
-        var checkEmpty = function() {
-          var mtx = msg.game.board;
-          for(var i = 0; i < mtx.length; i++){
-            for(var j = 0; j < mtx.length; j++){
-              if(mtx[i][j] !== ''){return false}
-            }
-          }
-          return true
-        }
-
-        console.log(msg.game.board);
-
-        if(checkEmpty()){
-          initGame(msg.game);
-          render.showturn(msg.game.users.x);
-        }else{
-          //switch between different game boards
-          serverGame = msg.game;
-          render.renderBrd(msg.game.board);
-        }
-        //start the game
-        $('#page-lobby').hide();
-        $('.main').show();
-
-      });
-
-
-//receive move from the other user
-//serverGame got the value from init()
-      socket.on('tic_move', function (msg) {
-        if (serverGame && msg.gameId === serverGame.id) {//if this msg is for local current game
-            console.log(msg.status.board);
-            if(msg.status !== false){
-              render.renderBrd(msg.status.board);
-              if(msg.status.win === playerColor){
-                //win
-                render.promptWin("Congratulations! You are the winner");
-                console.log(playerColor);
-                  render.showWinCombo(msg.status.run, 'yellow');
-              }else if(msg.status.win !== false && msg.status.win !== 'D'){
-                //lose
-                render.promptWin("You suck...");
-                  render.showWinCombo(msg.status.run, 'blue');
-              }else if(msg.status.win == 'D'){
-                render.promptWin("Draw...");
-              }
-            }
-
-        }
-      });
-
-//game_to_reset
-      socket.on('restart', function(msg){
-          if(serverGame && serverGame.id === msg.id){
-            initGame(msg);
-            render.showturn(msg.users.o);
-          }
-      });
-
-//leave_game
-      socket.on('quitgame', function(msg) {
-        if(serverGame && serverGame.id === msg.id){
-          console.log('quit');
-          if($("#myModal").css("display") !== "none"){
-            $("#myModal").css("display","none");
-            $(".modal-header h4").remove();
-          }
-
-          $('#page-lobby').show();
-          $('.main').hide();
-
-
-          console.log(msg);
-          usersOnline = msg.users;
-          reloadUserList();
-        }
-      });
-
-
-
-      //////////////////////////////
-      // Menus
-      //////////////////////////////
       $('#login').on('click', function() {
-        username = $('#username').val();
+          var username = $('#email').val();
+          var pw = $('#password').val();
+          if (username.length > 0 && pw.length > 0 ) {
+            socket.emit('login', {username : username, password : pw});
+          }
+        });
 
-        if (username.length > 0) {
-            $('#userLabel').text(username);
-            //send the login message(username) to server
-            socket.emit('login', username);
+      socket.on('logged in', function(data){
+        console.log(data);
 
-            $('#page-login').hide();
-            $('#page-lobby').show();
+        // parepare page
+        onLogin(data);
+
+        // dispay username
+
+
+      });
+
+      socket.on('login failed', function(data) {
+        console.log(data.msg);
+      });
+
+
+      // Signup feature
+
+      $('#signup-anchor').click(function(){
+
+        var username = $('#email').val();
+        var pw = $('#password').val();
+        if (username.length > 0 && pw.length > 0 ) {
+          socket.emit('signup', {username : username, password : pw});
         }
       });
 
-
-      //click to restart the game
-      $("#prpReset").on("click",function(){
-        $("#myModal").css("display","none");
-        $(".modal-header h2").remove();
-        return socket.emit('restart', serverGame);
+      socket.on('signup failed', function(data) {
+        console.log(data.msg)
       });
 
-      //click to quit prpQuit
-      $("#prpQuit").on("click",function(){
-        return socket.emit('quitgame', serverGame);
-      });
-      //game-quit
-      $("#game-quit").on("click",function(){
-        return socket.emit('quitgame', serverGame);
-      });
+
 
       //-----lobby list editting-----
+
+      function onLogin(data){
+
+        //display username
+        $('#userLabel').text(data.user.username);
+
+        //display use record
+        showUser(data.user);
+
+        //updateUserList
+        // reloadUserList(data);
+
+        $('#login-page').hide();
+        $('#page-lobby').show();
+      }
 
       function showUser(user) {
         $('#w').text('');
         $('#l').text('');
         $('#d').text('');
-        $('#w').text(user[0].w);
-        $('#l').text(user[0].l);
-        $('#d').text(user[0].d);
+        $('#w').text(user.w);
+        $('#l').text(user.l);
+        $('#d').text(user.d);
       }
 
-      // <span class="new badge red">4</span>
-      // <span class="new badge blue">4</span>
-      // <span class="new badge green">4</span>
 
       var addUser = function(userId) {
         usersOnline.push(userId);
@@ -222,22 +109,11 @@
 
       }
 
+      var reloadUserList = function( data ) {
 
+        var username = data.user.username;
+        var usersOnline = Object.keys(data.playerlist);
 
-      var updateUserList = function() {
-        $('#userList').empty();
-        usersOnline.forEach(function(user) {
-          if(username !== user){
-            $('#userList').append($('<button>')
-                          .text(user)
-                          .on('click', function() {
-                            socket.emit('invite',  user);
-                          }));
-          }
-        });
-      };
-
-      var reloadUserList = function() {
         $('#playerlist .collection-item').remove();
         usersOnline.forEach(function(user) {
           if(username !== user){
@@ -260,28 +136,6 @@
         });
       };
 
-
-      //tictactoe drawing area:
-
-
-      var initGame = function (serverGameState) {
-        serverGame = serverGameState;//update local current game info
-
-          var cfg = {
-            div : 'grdgrp',
-            position : serverGame.board,
-            gameId : serverGame.id,
-            rule : function(id){return id;},
-            gameMode : 'HvH',
-            goFirst : 'H',
-            socket: socket,
-            side: playerColor,
-            size : 3
-          };
-
-          render = ticBoard(cfg);
-          render.initGrids();
-      }
 
 
 
@@ -324,36 +178,6 @@
         $('#chatlog').append($msg);
       });
 
-      //buttons that controls the modal dropdowns
-      // X button to close the dropdown
-      $(".close").on("click",function(){
-        $("#myModal").css("display","none");
-        $(".modal-header h2").remove();
-      });
-
-
-
-      // 
-      // $("#AddNew").on("click",function(){
-      //   return showPanel();
-      // });
-      //
-      //
-      // $("#addPlayer").on("click",function(){
-      //   $(".scoreBoard .rds").remove();
-      //   return addPlayer();
-      // });
-      //
-      // $("#cancel").on("click",function(){
-      //   $("#playerPanel").css("display","none");
-      //   $(".scoreBoard .rds").remove();
-      // });
-      //
-      //
-      // function showPanel(){
-      //   $("#playerPanel").css("display","block");
-      //   printPlayers();
-      // }
 
 
 })();
