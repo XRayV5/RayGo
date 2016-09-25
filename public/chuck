@@ -1,3 +1,24 @@
 db.users.insert(
   {username : "test", password : "123", gamekey : "ertyui", w : 0, l : 0, d : 0, lastgame : '', board : []}
 )
+
+
+
+
+
+player class {
+    id, //username for now
+    socket,
+    record: {w : 0, l : 0 , d : 0},
+
+
+
+}
+
+
+game class {
+
+  id,
+  
+
+}

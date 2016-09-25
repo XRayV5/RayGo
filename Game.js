@@ -1,20 +1,33 @@
-var Game =  function() {
+var UUID = require('uuid');
 
-  //var id;
-  //var playerColor;
-  var track = [];
-  var turn = "B";
-  var over = false;
-  var win = null;
-  var board = initBoard(19);
+var Game =  function( p1, p2 ) {
+
+  var self = {
+    id: UUID.v1(),
+    track : [],
+    turn  : "B", //to modify
+    over  : false,
+    win   : null,
+    board : initBoard(19),
+    players : {}
+  }
+
+  // store the created game
+  Game.gamelist[self.id] = self;
+  // add players in game
+  self.players[p1] = 'B';
+  self.players[p2] = 'W';
+
+  //random W/B turn
+  // Math.floor(Math.random() * 2)
 
   //for game reset
-  var init = function() {
-    track = [];
-    turn = "B";
-    over = false;
-    win = null;
-    board = initBoard(19);
+  self.init = function() {
+    self.track = [];
+    self.turn = "B"; //TBD
+    self.over = false;
+    self.win = null;
+    self.board = initBoard(19);
   }
 
 
@@ -239,52 +252,46 @@ var Game =  function() {
 
 
 
-
-
-
-  return {
-     validateMove : function(side, x, y) {
-      if (turn === side && board[x][y]===""){
-        //board updated
-        board[x][y] = x + "_" + y + '_' + side;
-        if(side === 'B'){
-          turn = 'W';
-        }else{
-          turn = 'B';
-        }
-
-        var result = winOrloss(board, side);
-        if(result!==false){
-          over = true;
-          if(typeof result === "object"){
-            if(result[0].includes("B")){
-            //prompt B here
-              return {win: 'B', run: result, board: board}
-              console.log("B!!!");
-            }else if(result[0].includes("W")){
-              //promt O here
-              return {win: 'W', run: result, board: board}
-              console.log("W!!!");
-            }
-          }
-          else{
-            //prompt Draw!
-            return {win: 'D', run: result, board: board}
-            console.log(result+"!!!");
-          }
-        }else{
-          return {win: false, run: result, board: board}
-        }
-
+   self.validateMove = function(side, x, y) {
+    if (self.turn === side && self.board[x][y]===""){
+      //self.board updated
+      self.board[x][y] = x + "_" + y + '_' + side;
+      self.track.push(self.board[x][y]);
+      if(side === 'B'){
+        self.turn = 'W';
       }else{
-        return false
+        self.turn = 'B';
       }
-    },
 
-    reset : init,
-    getOver : function() { return over;},
-    getTurn : function () { return turn;},
-    //setTurn : function (flg) {  turn = flg; return turn;}
+      var result = winOrloss(self.board, side);
+      if(result!==false){
+        self.over = true;
+        if(typeof result === "object"){
+          if(result[0].includes("B")){
+          //prompt B here
+            return {win: 'B', run: result, board: self.board}
+            console.log("B!!!");
+          }else if(result[0].includes("W")){
+            //promt O here
+            return {win: 'W', run: result, board: self.board}
+            console.log("W!!!");
+          }
+        }
+        else{
+          //prompt Draw!
+          return {win: 'D', run: result, board: self.board}
+          console.log(result+"!!!");
+        }
+      }else{
+        return {win: false, run: result, board: self.board}
+      }
+
+    }else{
+      return false
+    }
   }
 
+  return self;
 }
+
+module.exports = Game;

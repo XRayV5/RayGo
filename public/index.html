@@ -134,71 +134,74 @@
 
     <!-- Game GUI -->
       <div class="main">
+        <div class="mainwrap">
+          <div class="panelLeft">
 
-        <div class="panelLeft">
+              <div id="p1" class="row">
+                <div class="cardWrap">
+                  <div id="left-card" class="card">
+                    <div id="chatlog" class="card-content white-text">
+                      <span class="card-title">Game Info</span>
+                    </div>
+                    <div class="card-action">
+                      <button id="restart" class="btn waves-effect waves-light" type="" name="action">Reset
+                      <i class="material-icons right">send</i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-            <div id="p1" class="row">
+          </div>
+
+          <div class="board">
+
+
+              <!--  original game board  -->
+                  <div id="board">
+                    <!-- board will go here -->
+                  </div>
+
+          </div>
+
+          <div class="panelRight">
+            <div id="p2" class="row">
               <div class="cardWrap">
-                <div id="left-card" class="card">
+                <div id="right-card" class="card">
                   <div id="chatlog" class="card-content white-text">
-                    <span class="card-title">Game Info</span>
+                    <span class="card-title">Chatbox</span>
                   </div>
                   <div class="card-action">
-                    <button id="restart" class="btn waves-effect waves-light" type="" name="action">Reset
+                    <div class="row">
+                      <div class="input-field">
+                        <i class="material-icons prefix">mode_edit</i>
+                        <textarea id="icon_prefix2" class="materialize-textarea white-text"></textarea>
+                        <label for="icon_prefix2">Message</label>
+                      </div>
+
+                    </div>
+                    <button id="sendbtn" class="btn waves-effect waves-light" type="" name="action">Send
                     <i class="material-icons right">send</i>
                     </button>
                   </div>
                 </div>
               </div>
             </div>
+        </div>
 
         </div>
 
-        <div class="board">
-
-
-            <!--  original game board  -->
-                <div id="board">
-                  <!-- board will go here -->
-                </div>
-
-        </div>
-
-        <div class="panelRight">
-          <div id="p2" class="row">
-            <div class="cardWrap">
-              <div id="right-card" class="card">
-                <div id="chatlog" class="card-content white-text">
-                  <span class="card-title">Chatbox</span>
-                </div>
-                <div class="card-action">
-                  <div class="row">
-                    <div class="input-field">
-                      <i class="material-icons prefix">mode_edit</i>
-                      <textarea id="icon_prefix2" class="materialize-textarea white-text"></textarea>
-                      <label for="icon_prefix2">Message</label>
-                    </div>
-
-                  </div>
-                  <button id="sendbtn" class="btn waves-effect waves-light" type="" name="action">Send
-                  <i class="material-icons right">send</i>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-      </div>
 
 
     <script type="text/javascript" src="lib/jquery-3.1.1.js"></script>
     <script type="text/javascript" src="lib/materialize.js"></script>
-    <script type="text/javascript" src="lib/wgo/wgo.min.js"></script>
-
     <script src="lib/socket.io-1.2.0.js"></script>
 
-    <script type="text/javascript" src="game.js"></script>
-    <script type="text/javascript" src="client.js"></script>
-    <script type="text/javascript" src="/default.js"></script>
+
+    <script type="text/javascript" src="lib/wgo/wgo.min.js"></script>
+
+    <script type="text/javascript" src="board.js"></script>
+    <script type="text/javascript" src="default.js"></script>
 
   </body>
 </html>

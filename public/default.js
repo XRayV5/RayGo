@@ -6,6 +6,12 @@
       var socket;
       socket = io();
 
+      var local = {
+        username : "",
+        render : "",
+      }
+
+
 
       //////////////////////////////
       // Socket.io handlers
@@ -24,7 +30,7 @@
 
       socket.on('logged in', function(data){
         console.log(data);
-
+        local.username = data.user.username;
         // parepare page
         onLogin(data);
 
@@ -54,6 +60,49 @@
       });
 
 
+      //update player list when come and go
+
+      socket.on('updatePlayers', function(data) {
+        reloadUserList(data);
+      });
+
+
+      // Game start
+
+      socket.on('joingame', function(data) {
+
+        // prepare board
+        // tell turn
+        // showboard
+        // debugger
+        initGame(data.game, data.color, socket);
+        $('#page-lobby').hide();// for testing
+        $('.main').show();
+
+      });
+
+      //handle move
+      socket.on('move', function (data) {
+      //if this data is for local current game
+            console.log(data.status.board);
+            if(data.status !== false){
+              local.render.renderBrd(data.status.board);
+              if(data.status.win === local.playerColor){
+                //win
+                // render.promptWin("Congratulations! You are the winner");
+                  local.render.showWinCombo(data.status.run);
+              }else if(data.status.win !== false && data.status.win !== 'D'){
+                //lose
+                // render.promptWin("You suck...");
+                local.render.showWinCombo(data.status.run);
+              }else if(data.status.win == 'D'){
+                // render.promptWin("Draw...");
+              }
+            }
+
+      });
+
+
 
       //-----lobby list editting-----
 
@@ -66,7 +115,7 @@
         showUser(data.user);
 
         //updateUserList
-        // reloadUserList(data);
+        reloadUserList(data.playerlist);
 
         $('#login-page').hide();
         $('#page-lobby').show();
@@ -109,10 +158,10 @@
 
       }
 
-      var reloadUserList = function( data ) {
+      var reloadUserList = function( playerlist ) {
 
-        var username = data.user.username;
-        var usersOnline = Object.keys(data.playerlist);
+        var username = local.username;
+        var usersOnline = Object.keys(playerlist);
 
         $('#playerlist .collection-item').remove();
         usersOnline.forEach(function(user) {
@@ -120,7 +169,10 @@
             var $li = $('<li>').addClass('collection-item');
             var $subdiv = $('<div>').text(user);
             var $anchor = $('<a>').attr('herf','#!').addClass('secondary-content');
-            var $i = $('<i>').addClass('material-icons').text('games').on('click', function() {socket.emit('invite', user)});
+            var $i = $('<i>').addClass('material-icons').text('games').on('click', function() {
+
+               socket.emit('invite', user);
+             });
 
             var $s = $('<i>').addClass('material-icons').text('send').attr('id',user).on('click', function(event) {
               whisperTo = $(event.target).attr('id');
@@ -136,6 +188,20 @@
         });
       };
 
+
+      // Game control
+
+      function initGame (game, color, socket) {
+
+        var elemt = $('#board')[0];
+        local.playerColor = color;
+        local.render = Draw(socket, game, color, elemt);
+
+          $('#restart').click(function(){
+            local.render.restart();
+          });
+
+      }
 
 
 
@@ -173,6 +239,7 @@
       });
 
       socket.on('broadcast', function(msg) {
+        console.log("WTF??");
         var line = msg.from + ": " + msg.message;
         var $msg = $('<p>').append(line);
         $('#chatlog').append($msg);

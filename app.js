@@ -13,9 +13,9 @@ var db = require( './helpers/db' );
 //univesal unique id generator
 var UUID = require('uuid');
 
-//Import gaming logic
-
-
+//Import Game and gaming logic
+var Game = require('./Game');
+Game.gamelist = {}
 
 
 var Player = function(userdata, socket) {
@@ -30,8 +30,6 @@ var Player = function(userdata, socket) {
     }
     self.socket.id = userdata.username;
     Player.playerlist[userdata.username] = self;
-
-
 
     return self;
 }
@@ -59,14 +57,39 @@ Player.onLogin = function(userdata, socket) {
   //later will add active game info in package too
   socket.emit('logged in',{user : userdata, playerlist : currentPlayers});
   //notify all other player this updated list(new user added)
-  // socket.broadcast.emit('updatePlayers', currentPlayers);
+  socket.broadcast.emit('updatePlayers', currentPlayers);
 
   // testing
   // Object.keys(Player.playerlist).forEach(function(k) {
   //   console.log("usersOnline: " + k);
   // });
+
+
 }
 
+Game.onInvite = function (p1, p2, socket){
+
+  // register the new game
+  var newgame = Game(p1, p2);
+
+  // flag the players in this game
+  Player.playerlist[p1].ingame = newgame.id;
+  Player.playerlist[p2].ingame = newgame.id;
+
+  // retireve piece color
+  var p1_color =newgame.players[p1];
+  var p2_color =newgame.players[p2];
+
+  // start game on both sides
+  Player.playerlist[p1].socket.emit('joingame',{game : newgame, color : p1_color});
+  Player.playerlist[p2].socket.emit('joingame',{game : newgame, color : p2_color});
+
+  // notify the lobby that these two are in game
+  socket.broadcast.emit('updatePlayers', Player.packList());
+
+  // send the lobby the new game list TBD
+
+}
 
 
 
@@ -97,11 +120,6 @@ io.on('connection', function(socket) {
 
         }
       });
-
-
-
-
-
 
 //       //display the user id received
 //         console.log(userdata + ' joining lobby');
@@ -152,10 +170,84 @@ io.on('connection', function(socket) {
 
 
 
+    // game invitation
+
+
+    socket.on('invite', function(opponentId) {
+        console.log('got an invite from: ' + socket.id + ' --> ' + opponentId);
+
+        // for now invitation is always accepted
+        Game.onInvite(socket.id, opponentId, socket);
+
+    });
+
+    // handle player moves
+    socket.on('move', function(data) {
+
+      console.log(data.side +  " " + data.x + " " + data.y);
+
+      //get the current game board before plot
+
+      var crt_game = Game.gamelist[data.gameId];
+
+      if(!crt_game.over){
+        //invoke logic here to validate the move
+        var move = crt_game.validateMove(data.side, data.x, data.y);
+
+        //update database for new game record
+        // if(move.win === 'X'){
+        //   Player.update({username : crt_game.users.x},{$inc : {w : 1} }, function (err) { if(err) throw err; });
+        //
+        //   Player.update({username : crt_game.users.o},{$inc : {l : 1} }, function (err) { if(err) throw err; });
+        //
+        // }else if(move.win === 'O'){
+        //   Player.update({username : crt_game.users.o},{$inc : {w : 1} }, function (err) { if(err) throw err; });
+        //
+        //   Player.update({username : crt_game.users.x},{$inc : {l : 1} }, function (err) { if(err) throw err; });
+        // }else if(move.win === 'D'){
+        //   Player.update({username : crt_game.users.o},{$inc : {d : 1} }, function (err) { if(err) throw err; });
+        //
+        //   Player.update({username : crt_game.users.x},{$inc : {d : 1} }, function (err) { if(err) throw err; });
+        // }
+
+        var newboard = {gameId: data.gameId, status: move}
+
+        //broadcast updated board to all users
+        // io.sockets.emit('move', newboard);
+
+        for(var k in crt_game.players){
+          Player.playerlist[k].socket.emit('move', newboard);
+        }
+
+        console.log(move);
+      }
+    });
+
+
+
     socket.on('disconnect', function(msg) {
       console.log(msg);
       delete Player.playerlist[socket.id];
+
+      var currentPlayers = Player.packList();
+      socket.broadcast.emit('updatePlayers', currentPlayers);
+
     });
+
+
+
+
+
+    //-------chat handlers
+    //whisper
+      socket.on('whisper', function(msg) {
+          Player.playerlist[msg.to].socket.emit('whisper', { from : socket.id, message : msg.message });
+      });
+
+      socket.on('broadcast', function(msg){
+          console.log(socket.id + " sid");
+          socket.broadcast.emit('broadcast', {from : socket.id , message : msg});
+      });
 
 
 });
