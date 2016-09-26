@@ -75,6 +75,8 @@ Game.onInvite = function (p1, p2, socket){
 
   // register the new game
   var newgame = Game(p1, p2);
+  console.log(newgame.id + ' registered server');
+  console.log(Game.gamelist[newgame.id] + ' is there?');
 
   // flag the players in this game
   Player.playerlist[p1].ingame = newgame.id;
@@ -266,9 +268,14 @@ io.on('connection', function(socket) {
       var gameToQuit = Game.gamelist[data.gameid];
 
       // delete the game from Game.gamelist
+      console.log(socket.id + " I clicked quit");
+      console.log(data.gameid + " gid from client..");
+      console.log(gameToQuit + " before delete..");
       delete Game.gamelist[data.gameid];
-      console.log(gameToQuit + " pls..");
-      Game.onQuit(gameToQuit, socket);
+      console.log(gameToQuit + " after..");
+      if(gameToQuit !== undefined){
+          Game.onQuit(gameToQuit, socket);
+      }
 
     });
 
@@ -296,6 +303,8 @@ io.on('connection', function(socket) {
               leftover = k;
             }
           }
+
+          Player.playerlist[leftover].ingame = false;
 
           db.User.find({username : leftover}, function(err, rcd){
             if(err) throw err;

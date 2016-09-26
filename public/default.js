@@ -80,8 +80,10 @@
         // showboard
         // debugger
         initGame(data.game, data.color, socket);
+        $('#game-modal').hide();//clean up last game
         $('#page-lobby').hide();// for testing
         $('.main').show();
+
 
       });
 
@@ -174,10 +176,17 @@
             var $li = $('<li>').addClass('collection-item');
             var $subdiv = $('<div>').text(user);
             var $anchor = $('<a>').attr('herf','#!').addClass('secondary-content');
-            var $i = $('<i>').addClass('material-icons').text('games').on('click', function() {
+            var $i = "";
+            // Here to see if user is in a game
+            if(playerlist[user].ingame !== false){
+              $subdiv.append('<span> is in game...</span>');
+            }else{
+              $i = $('<i>').addClass('material-icons').text('games').on('click', function() {
 
-               socket.emit('invite', user);
-             });
+                 socket.emit('invite', user);
+               });
+            }
+
 
             var $s = $('<i>').addClass('material-icons').text('send').attr('id',user).on('click', function(event) {
               whisperTo = $(event.target).attr('id');
@@ -202,12 +211,12 @@
         var elemt = $('#board')[0];
         local.playerColor = color;
         local.render = Draw(socket, game, color, elemt);
-
+        local.in_game = game.id
           $('#resign').click(function(){
 
             // for testing
             // local.render.restart();
-            socket.emit('quit', { gameid : game.id});
+            socket.emit('quit', { gameid : local.in_game});
 
           });
 
@@ -215,14 +224,14 @@
             // for testing
             // local.render.restart();
             $('#game-modal').hide();
-            socket.emit('quit', { gameid : game.id});
+            socket.emit('quit', { gameid : local.in_game});
           });
           $('#again').click(function(){
             // for testing
             // local.render.restart();
             $('#game-modal').hide();
             local.render.restart();
-            socket.emit('reset', {gameid : game.id});
+            socket.emit('reset', {gameid : local.in_game});
           });
           $('#close').click(function(){
             // for testing
