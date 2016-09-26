@@ -212,6 +212,26 @@
         local.playerColor = color;
         local.render = Draw(socket, game, color, elemt);
         local.in_game = game.id
+
+      //   <div class="chip">
+      //    <img src="/img/black-dot.png" alt="B">
+      //    Jane Doe <span>'s turn</span>
+      //   </div>
+      //  <div class="chip">
+      //   <img src="/img/whitedot.png" alt="W">
+      //   Jane Doe
+      //  </div>
+          $("#B span").empty();
+          $("#W span").empty();
+          for(var k in game.players){
+            if(game.players[k] === game.turn){
+                $('#'+game.players[k]).append("<span class = 'turn'>"+ k +"</span>");
+            }else{
+              $('#'+game.players[k]).append("<span class = 'turn'>"+ k + "</span>");
+            }
+
+          }
+
           $('#resign').click(function(){
 
             // for testing
@@ -252,12 +272,29 @@
 
       //-----------Chatbox feature----------------
 
+      // game talk
+      $('#game-send').click(function() {
+        var content = $('#icon_prefix').val();
+        if(content.length > 0){
+          socket.emit('gametalk', { gameId : local.in_game, message : content});
+          $('#gamechat').append('<p>me :' + content + '</p>');
+          $('#icon_prefix').val('');
+        }
+      });
+
+      socket.on('gametalk', function(msg){
+        var $from = $('<span>').text(msg.from).css('color','red');
+        var $msg = $('<p>').append($from + ": ");
+        $msg.append(msg.message);
+        $('#gamechat').append($msg);
+      })
+
       //sender
       $('#sendbtn').click(function() {
         var content = $('#icon_prefix2').val();
         if(content.length > 0){
           socket.emit('whisper', {to : whisperTo, message : content});
-          $('#chatlog').append('<p>me' + content + '</p>');
+          $('#chatlog').append('<p>me:' + content + '</p>');
           $('#icon_prefix2').val('');
         }
       });

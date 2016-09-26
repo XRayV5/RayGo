@@ -140,6 +140,13 @@ body {
   width: 80%;
 }
 
+#p1 .chip {
+	background-color: #26a69a;
+	color: white;
+	width: 100%;
+	margin: 0.5em auto;
+}
+
 .cardWrap #left-card, #right-card{
 	height: 650px;
 	background-color: olive;

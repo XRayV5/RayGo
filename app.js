@@ -341,6 +341,20 @@ io.on('connection', function(socket) {
           socket.broadcast.emit('broadcast', {from : socket.id , message : msg});
       });
 
+      socket.on('gametalk', function(msg) {
+          var players = Game.gamelist[msg.gameId].players;
+          console.log(msg.message);
+          for(var k in players){
+            if(k !== socket.id){
+              Player.playerlist[k].socket.emit('gametalk', { from : socket.id, message : msg.message });
+            }
+          }
+
+
+      });
+
+
+
 
 });
 
