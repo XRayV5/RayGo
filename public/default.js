@@ -66,6 +66,10 @@
         reloadUserList(data);
       });
 
+      //updateGames
+      socket.on('updateGames', function(data) {
+        reloadGameList(data);
+      });
 
       // Game start
 
@@ -89,21 +93,21 @@
               local.render.renderBrd(data.status.board);
               if(data.status.win === local.playerColor){
                 //win
-                // render.promptWin("Congratulations! You are the winner");
+                  promptWin("Congratulations! You are the winner");
                   local.render.showWinCombo(data.status.run);
               }else if(data.status.win !== false && data.status.win !== 'D'){
                 //lose
-                // render.promptWin("You suck...");
+                promptWin("You suck...");
                 local.render.showWinCombo(data.status.run);
               }else if(data.status.win == 'D'){
-                // render.promptWin("Draw...");
+                render.promptWin("Draw...");
               }
             }
 
       });
 
       socket.on('quit', function(data){
-
+        onLogin(data);
       });
 
 
@@ -113,6 +117,7 @@
 
       function onLogin(data){
 
+        console.log('be twice');
         //display username
         $('#userLabel').text(data.user.username);
 
@@ -122,10 +127,16 @@
         //updateUserList
         reloadUserList(data.playerlist);
 
+        reloadGameList(data.gamelist);
+
         //update game list
 
         $('#login-page').hide();
+
         // hide board
+        $('#board').empty();
+        $('.main').hide();
+
         $('#page-lobby').show();
 
 
@@ -141,30 +152,14 @@
       }
 
 
-      var addUser = function(userId) {
-        usersOnline.push(userId);
-        reloadUserList();
-      };
-
-     var removeUser = function(userId) {
-          for (var i=0; i<usersOnline.length; i++) {
-            if (usersOnline[i] === userId) {
-                usersOnline.splice(i, 1);
-            }
-         }
-
-         reloadUserList();
-      };
-
       var reloadGameList = function( gamelist ) {
         $('#game-list').empty();
-        gamelist.forEach(function(game) {
-            var $li = $('<li>').addClass('collection-item');
-            $li.attr('id',game.id);
-            var info = game.users.x + " VS. " + game.users.o;
-            $li.text(info);
-            $('#game-list').append($li);
-         });
+        for(var k in gamelist){
+          var $li = $('<li>').addClass('collection-item');
+          var info = gamelist[k].B + " VS. " + gamelist[k].W;
+          $li.text(info);
+          $('#game-list').append($li);
+        }
 
       }
 
@@ -212,11 +207,37 @@
 
             // for testing
             // local.render.restart();
-            socket.emit('resign', { gameid : game.id});
+            socket.emit('quit', { gameid : game.id});
 
           });
 
+          $('#quit').click(function(){
+            // for testing
+            // local.render.restart();
+            $('#game-modal').hide();
+            socket.emit('quit', { gameid : game.id});
+          });
+          $('#again').click(function(){
+            // for testing
+            // local.render.restart();
+            $('#game-modal').hide();
+            local.render.restart();
+            socket.emit('reset', {gameid : game.id});
+          });
+          $('#close').click(function(){
+            // for testing
+            // local.render.restart();
+            $('#game-modal').hide();
+          });
+
       }
+
+      function promptWin(str) {
+        $('.modal-content').empty();
+        $('.modal-content').append('<h4>' + str + '</h4>');
+        $('#game-modal').show();
+      }
+
 
 
 

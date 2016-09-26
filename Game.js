@@ -22,7 +22,7 @@ var Game =  function( p1, p2 ) {
   // Math.floor(Math.random() * 2)
 
   //for game reset
-  self.init = function() {
+  self.reset = function() {
     self.track = [];
     self.turn = "B"; //TBD
     self.over = false;

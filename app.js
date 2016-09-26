@@ -1,13 +1,8 @@
 var express = require('express');
 var app = express();
-app.use(express.static('public')); // make the dircectory public
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var port = process.env.PORT || 3333;
-
-
-
-
 var db = require( './helpers/db' );
 
 //univesal unique id generator
@@ -17,6 +12,13 @@ var UUID = require('uuid');
 var Game = require('./Game');
 Game.gamelist = {}
 
+app.get('/', function(req, res) {
+  //send back the main page
+ res.sendFile(__dirname + '/public/index.html');
+
+});
+
+app.use(express.static('public')); // make the dircectory public
 
 var Player = function(userdata, socket) {
 
@@ -53,9 +55,11 @@ Player.onLogin = function(userdata, socket) {
   var loginPlayer = Player(userdata, socket);
   //pack all current online player info
   var currentPlayers = Player.packList();
+  //
+  var currentGames = Game.packList();
   //send current player list and self into to use client
   //later will add active game info in package too
-  socket.emit('logged in',{user : userdata, playerlist : currentPlayers});
+  socket.emit('logged in',{user : userdata, playerlist : currentPlayers, gamelist : currentGames});
   //notify all other player this updated list(new user added)
   socket.broadcast.emit('updatePlayers', currentPlayers);
 
@@ -88,10 +92,64 @@ Game.onInvite = function (p1, p2, socket){
   socket.broadcast.emit('updatePlayers', Player.packList());
 
   // send the lobby the new game list TBD
-
+  socket.broadcast.emit('updateGames', Game.packList());
 }
 
 
+Game.onQuit = function(game, socket){
+
+  var playerId = socket.id;
+  var opponentId;
+
+  // update both players game status
+  for(var k in game.players){
+    Player.playerlist[k].ingame = false;
+  }
+
+  //pack all current online player info
+  var currentPlayers = Player.packList();
+
+  // get player info from db
+  // notify both players to leave game
+  //later will add active game info in package too
+  for(var k in game.players){
+    if(k !== playerId) opponentId = k;
+  }
+
+  db.User.find({username : playerId}, function(err, rcd){
+    if(err) throw err;
+    Player.playerlist[playerId].socket.emit('quit',{user : rcd[0], playerlist : currentPlayers, gamelist : Game.packList()});
+  });
+
+  db.User.find({username : opponentId}, function(err, rcd){
+    if(err) throw err;
+    Player.playerlist[opponentId].socket.emit('quit',{user : rcd[0], playerlist : currentPlayers, gamelist : Game.packList()});
+  });
+
+  //notify all other player this updated list(new user added)
+  socket.broadcast.emit('updatePlayers', currentPlayers);
+
+  ////notify all other player this updated list(game finished)
+  socket.broadcast.emit('updateGames', Game.packList());
+}
+
+Game.matchColor = function (game){
+  var reversed = {};
+  for(var k in game.players){
+    reversed[game.players[k]] = k;
+  }
+  return reversed;
+}
+
+
+Game.packList = function() {
+  var pack = {};
+  for(var k in Game.gamelist) {
+      var reversed = Game.matchColor(Game.gamelist[k]);
+      pack[k] = reversed;
+  }
+  return pack;
+}
 
 io.on('connection', function(socket) {
     console.log('new connection ' + socket);
@@ -121,29 +179,6 @@ io.on('connection', function(socket) {
         }
       });
 
-//       //display the user id received
-//         console.log(userdata + ' joining lobby');
-//       //store the userdata in the session 'socket'
-//         socket.userdata = userdata;
-//
-//         if (!users[userdata]) {
-//           //if user does not exist, create new
-//             console.log('creating new user');
-//             users[userdata] = {userdata: socket.userdata, userSocket: socket , games:{}};
-//         } else {
-//             console.log('user found!');
-//             Object.keys(users[userdata].games).forEach(function(gameId) {
-//                 console.log('gameid - ' + gameId);
-//             });
-//         }
-//
-// //Send the new user all existing users and games
-//         socket.emit('login', {users: Object.keys(lobbyUsers),
-//                               games: helpers.getValues(activeGames)});
-// //store all user info in the lobbyUsers
-//         lobbyUsers[userdata] = socket;
-// //notify all online users a new user joins the lobby
-//         socket.broadcast.emit('joinlobby', socket.userdata);
     });
 
 
@@ -194,21 +229,23 @@ io.on('connection', function(socket) {
         //invoke logic here to validate the move
         var move = crt_game.validateMove(data.side, data.x, data.y);
 
+        var colorPlayer = Game.matchColor(crt_game);
+
         //update database for new game record
-        // if(move.win === 'X'){
-        //   Player.update({username : crt_game.users.x},{$inc : {w : 1} }, function (err) { if(err) throw err; });
-        //
-        //   Player.update({username : crt_game.users.o},{$inc : {l : 1} }, function (err) { if(err) throw err; });
-        //
-        // }else if(move.win === 'O'){
-        //   Player.update({username : crt_game.users.o},{$inc : {w : 1} }, function (err) { if(err) throw err; });
-        //
-        //   Player.update({username : crt_game.users.x},{$inc : {l : 1} }, function (err) { if(err) throw err; });
-        // }else if(move.win === 'D'){
-        //   Player.update({username : crt_game.users.o},{$inc : {d : 1} }, function (err) { if(err) throw err; });
-        //
-        //   Player.update({username : crt_game.users.x},{$inc : {d : 1} }, function (err) { if(err) throw err; });
-        // }
+        if(move.win === 'B'){
+          db.User.update({username : colorPlayer['B']},{$inc : {w : 1} }, function (err) { if(err) throw err; });
+
+          db.User.update({username : colorPlayer['W']},{$inc : {l : 1} }, function (err) { if(err) throw err; });
+
+        }else if(move.win === 'W'){
+          db.User.update({username : colorPlayer['W']},{$inc : {w : 1} }, function (err) { if(err) throw err; });
+
+          db.User.update({username : colorPlayer['B']},{$inc : {l : 1} }, function (err) { if(err) throw err; });
+        }else if(move.win === 'D'){
+          db.User.update({username : colorPlayer['B']},{$inc : {d : 1} }, function (err) { if(err) throw err; });
+
+          db.User.update({username : colorPlayer['W']},{$inc : {d : 1} }, function (err) { if(err) throw err; });
+        }
 
         var newboard = {gameId: data.gameId, status: move}
 
@@ -223,44 +260,60 @@ io.on('connection', function(socket) {
       }
     });
 
-    socket.on('resign', function(data) {
+    socket.on('quit', function(data) {
 
       //retrieve the game to resign
-      var gameToResign = Game.gamelist[data.gameid];
+      var gameToQuit = Game.gamelist[data.gameid];
 
-      // update both players status
-      for(var k in gameToResign.players){
-        Player.playerlist[k].ingame = false;
-      }
+      // delete the game from Game.gamelist
+      delete Game.gamelist[data.gameid];
+      console.log(gameToQuit + " pls..");
+      Game.onQuit(gameToQuit, socket);
 
-      //pack all current online player info
-      var currentPlayers = Player.packList();
-      // notify both players to leave game
-      //later will add active game info in package too
-      for(var k in gameToResign.players){
-        var userdata = {};
-        userdata.username = Player.playerlist[k].id;
-        userdata.w = Player.playerlist[k].record.w;
-        userdata.l = Player.playerlist[k].record.l;
-        userdata.d = Player.playerlist[k].record.d;
-        Player.playerlist[k].socket.emit('quit',{user : userdata, playerlist : currentPlayers});
-      }
+    });
 
-
-      //notify all other player this updated list(new user added)
-      socket.broadcast.emit('updatePlayers', currentPlayers);
-
-
+    socket.on('reset',function(data){
+      console.log(Game.gamelist[data.gameid] + " reset");
+      Game.gamelist[data.gameid].reset();
     });
 
 
 
     socket.on('disconnect', function(msg) {
       console.log(msg);
-      delete Player.playerlist[socket.id];
+      console.log(socket.id + "disconnected");
 
-      var currentPlayers = Player.packList();
-      socket.broadcast.emit('updatePlayers', currentPlayers);
+      if(Player.playerlist[socket.id] !== undefined){
+        console.log('game ' + Player.playerlist[socket.id]);
+        var inGame = Player.playerlist[socket.id].ingame
+        delete Player.playerlist[socket.id];
+        if( inGame !== false){
+          var badgame = Game.gamelist[inGame];
+          delete Game.gamelist[inGame];
+          var leftover;
+          for(var k in badgame.players){
+            if(k !== socket.id) {
+              leftover = k;
+            }
+          }
+
+          db.User.find({username : leftover}, function(err, rcd){
+            if(err) throw err;
+            Player.playerlist[leftover].socket.emit('quit',{user : rcd[0], playerlist : currentPlayers, gamelist : Game.packList()});
+          });
+
+        }
+
+
+        var currentPlayers = Player.packList();
+        socket.broadcast.emit('updatePlayers', currentPlayers);
+
+        socket.broadcast.emit('updateGames', Game.packList());
+
+
+      }
+
+
 
     });
 
