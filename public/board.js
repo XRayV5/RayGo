@@ -18,7 +18,7 @@ function Draw(socket, game, color, domelmt){
       board.removeAllObjects();
 
       board.addEventListener("click", function(x, y) {
-        console.log(x + "-" + y "-" + color);
+          // console.log(x + "-" + y "-" + color);
           socket.emit('move', {gameId : game.id, side : color, x : x, y : y});
       });
 

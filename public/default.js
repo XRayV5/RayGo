@@ -102,6 +102,11 @@
 
       });
 
+      socket.on('quit', function(data){
+
+      });
+
+
 
 
       //-----lobby list editting-----
@@ -117,8 +122,13 @@
         //updateUserList
         reloadUserList(data.playerlist);
 
+        //update game list
+
         $('#login-page').hide();
+        // hide board
         $('#page-lobby').show();
+
+
       }
 
       function showUser(user) {
@@ -193,12 +203,17 @@
 
       function initGame (game, color, socket) {
 
+        // might need to empty the board element to clear last game board
         var elemt = $('#board')[0];
         local.playerColor = color;
         local.render = Draw(socket, game, color, elemt);
 
-          $('#restart').click(function(){
-            local.render.restart();
+          $('#resign').click(function(){
+
+            // for testing
+            // local.render.restart();
+            socket.emit('resign', { gameid : game.id});
+
           });
 
       }

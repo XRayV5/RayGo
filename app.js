@@ -223,6 +223,36 @@ io.on('connection', function(socket) {
       }
     });
 
+    socket.on('resign', function(data) {
+
+      //retrieve the game to resign
+      var gameToResign = Game.gamelist[data.gameid];
+
+      // update both players status
+      for(var k in gameToResign.players){
+        Player.playerlist[k].ingame = false;
+      }
+
+      //pack all current online player info
+      var currentPlayers = Player.packList();
+      // notify both players to leave game
+      //later will add active game info in package too
+      for(var k in gameToResign.players){
+        var userdata = {};
+        userdata.username = Player.playerlist[k].id;
+        userdata.w = Player.playerlist[k].record.w;
+        userdata.l = Player.playerlist[k].record.l;
+        userdata.d = Player.playerlist[k].record.d;
+        Player.playerlist[k].socket.emit('quit',{user : userdata, playerlist : currentPlayers});
+      }
+
+
+      //notify all other player this updated list(new user added)
+      socket.broadcast.emit('updatePlayers', currentPlayers);
+
+
+    });
+
 
 
     socket.on('disconnect', function(msg) {
