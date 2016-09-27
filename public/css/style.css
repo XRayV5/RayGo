@@ -90,9 +90,12 @@ body {
 	 height: 66%;
  }
 #resignDiv{
-	padding-left: 15%;
-	padding-right: 15%;
-	padding-top: 62%;
+	padding-left: 29%;
+	padding-top: 43%;
+ }
+
+ #game-send{
+	 margin-left: 30%;
  }
  /* format right-col*/
 
@@ -186,6 +189,10 @@ body {
 	overflow-y: scroll;
 }
 
+#gamelog{
+	height: 50%;
+	overflow-y: scroll;
+}
 
 /* modal css*/
 

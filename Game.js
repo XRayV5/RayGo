@@ -24,7 +24,7 @@ var Game =  function( p1, p2 ) {
   //for game reset
   self.reset = function() {
     self.track = [];
-    self.turn = "B"; //TBD
+    // self.turn = "B"; //TBD
     self.over = false;
     self.win = null;
     self.board = initBoard(19);
@@ -269,21 +269,21 @@ var Game =  function( p1, p2 ) {
         if(typeof result === "object"){
           if(result[0].includes("B")){
           //prompt B here
-            return {win: 'B', run: result, board: self.board}
+            return {win: 'B', run: result, board: self.board, turn : self.turn, track : self.track}
             console.log("B!!!");
           }else if(result[0].includes("W")){
             //promt O here
-            return {win: 'W', run: result, board: self.board}
+            return {win: 'W', run: result, board: self.board, turn : self.turn, track : self.track}
             console.log("W!!!");
           }
         }
         else{
           //prompt Draw!
-          return {win: 'D', run: result, board: self.board}
+          return {win: 'D', run: result, board: self.board, turn : self.turn, track : self.track}
           console.log(result+"!!!");
         }
       }else{
-        return {win: false, run: result, board: self.board}
+        return {win: false, run: result, board: self.board, turn : self.turn, track : self.track}
       }
 
     }else{
