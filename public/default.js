@@ -268,9 +268,6 @@
         $('#game-modal').show();
       }
 
-
-
-
       //-----------Chatbox feature----------------
 
       // scroll to bottom
