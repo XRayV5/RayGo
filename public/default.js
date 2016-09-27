@@ -223,6 +223,7 @@
       //  </div>
           $("#B span").empty();
           $("#W span").empty();
+          $('#chatdiv').empty();
           for(var k in game.players){
             if(game.players[k] === game.turn){
                 $('#'+game.players[k]).append("<span class = 'turn'>"+ k +"</span>");
@@ -272,21 +273,30 @@
 
       //-----------Chatbox feature----------------
 
+      // scroll to bottom
+      function updateScroll(elemtid){
+        console.log('scroll');
+        var element = document.getElementById(elemtid);
+        element.scrollTop = element.scrollHeight;
+      }
+
       // game talk
       $('#game-send').click(function() {
         var content = $('#icon_prefix').val();
         if(content.length > 0){
           socket.emit('gametalk', { gameId : local.in_game, message : content});
-          $('#gamechat').append('<p>me :' + content + '</p>');
+          $('#chatdiv').append('<p>me :' + content + '</p>');
+          updateScroll('chatdiv');
           $('#icon_prefix').val('');
         }
       });
 
       socket.on('gametalk', function(msg){
         var $from = $('<span>').text(msg.from).css('color','red');
-        var $msg = $('<p>').append($from + ": ");
+        var $msg = $('<p>').append(msg.from + ": ");
         $msg.append(msg.message);
-        $('#gamechat').append($msg);
+        $('#chatdiv').append($msg);
+        updateScroll('chatdiv');
       })
 
       //sender
@@ -294,7 +304,8 @@
         var content = $('#icon_prefix2').val();
         if(content.length > 0){
           socket.emit('whisper', {to : whisperTo, message : content});
-          $('#chatlog').append('<p>me:' + content + '</p>');
+          $('#lobbychatdiv').append('<p>me:' + content + '</p>');
+          updateScroll('lobbychatdiv');
           $('#icon_prefix2').val('');
         }
       });
@@ -303,7 +314,8 @@
         var content = $('#icon_prefix2').val();
         if(content.length > 0){
           socket.emit('broadcast', content);
-          $('#chatlog').append('<p>me: ' + content + '</p>');
+          // $('#lobbychatdiv').append('<p>me: ' + content + '</p>');
+          updateScroll('lobbychatdiv');
           $('#icon_prefix2').val('');
         }
       });
@@ -317,15 +329,19 @@
         }).css('color','red');
         var $msg = $('<p>').append($from);
         $msg.append(msg.message);
-        $('#chatlog').append($msg);
+        $('#lobbychatdiv').append($msg);
+        updateScroll('lobbychatdiv');
       });
 
       socket.on('broadcast', function(msg) {
         console.log("WTF??");
         var line = msg.from + ": " + msg.message;
         var $msg = $('<p>').append(line);
-        $('#chatlog').append($msg);
+        $('#lobbychatdiv').append($msg);
+        updateScroll('lobbychatdiv');
       });
+
+
 
 
 

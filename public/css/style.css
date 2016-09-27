@@ -81,10 +81,19 @@ body {
 		height:50%
  }
 
+
  #chatbox .card-action{
 		height: 55%
  }
 
+ #gamepanel{
+	 height: 66%;
+ }
+#resignDiv{
+	padding-left: 15%;
+	padding-right: 15%;
+	padding-top: 62%;
+ }
  /* format right-col*/
 
 .right-col .active-games{
@@ -163,6 +172,19 @@ body {
 }
 
 
+/*Chat divs*/
+
+#gamechat{
+	height:66%;
+}
+#chatdiv{
+	height: 90%;
+	overflow-y: scroll;
+}
+#lobbychatdiv{
+	height: 75%;
+	overflow-y: scroll;
+}
 
 
 /* modal css*/
