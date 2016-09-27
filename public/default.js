@@ -11,7 +11,12 @@
         render : "",
       }
 
-
+      // scroll to bottom
+      function updateScroll(elemtid){
+        console.log('scroll');
+        var element = document.getElementById(elemtid);
+        element.scrollTop = element.scrollHeight;
+      }
 
       //////////////////////////////
       // Socket.io handlers
@@ -90,8 +95,11 @@
       //handle move
       socket.on('move', function (data) {
       //if this data is for local current game
+
             console.log(data.status.board);
+
             if(data.status !== false){
+              updateStats(data);
               local.render.renderBrd(data.status.board);
               if(data.status.win === local.playerColor){
                 //win
@@ -107,6 +115,29 @@
             }
 
       });
+
+
+      function updateStats(data){
+        $('.chip').css('background-color','#26a69a')
+        if(data.status.turn === local.playerColor){
+          $('#' + local.playerColor).css('background-color','red');
+        }else{
+          $('#' + data.status.turn).css('background-color','red');
+        }
+        $('#gamelog').empty();
+        data.status.track.forEach(function(step){
+          var s = step.split("_");
+          if(s[2] === 'B'){
+            $('#gamelog').append('<p id='+ step +'>Black at (' + s[0] + ',' + s[1] + ')');
+            $('#' + step).css('color','black');
+          }else{
+            $('#gamelog').append('<p id='+ step +'>White at (' + s[0] + ',' + s[1] + ')');
+            $('#' + step).css('color','white');
+          }
+
+        });
+        updateScroll('gamelog');
+      }
 
       socket.on('quit', function(data){
         onLogin(data);
@@ -224,9 +255,11 @@
           $("#B span").empty();
           $("#W span").empty();
           $('#chatdiv').empty();
+          $('#gamelog').empty();
+          $('.chip').css('background-color','#26a69a');
           for(var k in game.players){
             if(game.players[k] === game.turn){
-                $('#'+game.players[k]).append("<span class = 'turn'>"+ k +"</span>");
+                $('#'+game.players[k]).append("<span class = 'turn'>"+ k +"</span>").css('background-color', 'red');
             }else{
               $('#'+game.players[k]).append("<span class = 'turn'>"+ k + "</span>");
             }
@@ -273,12 +306,7 @@
 
       //-----------Chatbox feature----------------
 
-      // scroll to bottom
-      function updateScroll(elemtid){
-        console.log('scroll');
-        var element = document.getElementById(elemtid);
-        element.scrollTop = element.scrollHeight;
-      }
+
 
       // game talk
       $('#game-send').click(function() {
@@ -334,7 +362,6 @@
       });
 
       socket.on('broadcast', function(msg) {
-        console.log("WTF??");
         var line = msg.from + ": " + msg.message;
         var $msg = $('<p>').append(line);
         $('#lobbychatdiv').append($msg);
