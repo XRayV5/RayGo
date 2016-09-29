@@ -25,9 +25,9 @@ var Player = function(userdata, socket) {
     var self = {
       id : userdata.username,
       socket : socket,
-      record : {w : userdata.w,
-                l : userdata.l,
-                d : userdata.d},
+      w : userdata.w,
+      l : userdata.l,
+      d : userdata.d,
       ingame : false
     }
     self.socket.id = userdata.username;
@@ -43,7 +43,9 @@ Player.packList = function() {
   var pack = {};
   for(var k in Player.playerlist) {
       pack[k] = {
-        record : Player.playerlist[k].record,
+        w : Player.playerlist[k].w,
+        l : Player.playerlist[k].l,
+        d : Player.playerlist[k].d,
         ingame : Player.playerlist[k].ingame
       }
   }
@@ -67,8 +69,36 @@ Player.onLogin = function(userdata, socket) {
   // Object.keys(Player.playerlist).forEach(function(k) {
   //   console.log("usersOnline: " + k);
   // });
+}
 
 
+Player.onSignUp(username, pw, socket){
+
+  db.User.find({username : username},   function(err, rcd) {
+        if(err) throw err;
+        if(rcd.length === 0){
+
+          var newuser = new db.User({username : username, password :pw});
+          newuser.save(function (err) {
+            if (err) throw err;
+            console.log(' New User Added to DB ');
+            console.log(newuser);
+            //send back user info for display
+            Player.onLogin(newuser, socket);;
+          });
+        }else{
+          socket.emit('signup failed', {msg : "invalid username"});
+        };
+  });
+
+}
+
+
+Player.onGameFinish(player, result){
+    db.User.update({username : player},{$inc : result }, function (err) {
+      if(err) throw err;
+      console.log("resign = lost +1");
+    });
 }
 
 Game.onInvite = function (p1, p2, socket){
@@ -102,7 +132,7 @@ Game.onQuit = function(game, socket){
 
   var playerId = socket.id;
   var opponentId;
-  
+
   // retrieve opponentId
   for(var k in game.players){
     if(k !== playerId) opponentId = k;
@@ -190,21 +220,8 @@ io.on('connection', function(socket) {
 
     socket.on('signup', function(userdata) {
 
-      db.User.find({username : userdata.username},   function(err, rcd) {
-            if(err) throw err;
-            if(rcd.length === 0){
-              var newuser = new db.User({username : userdata.username, password :userdata.password});
-              newuser.save(function (err) {
-                if (err) throw err;
-                console.log(' New User Added to DB ');
-                console.log(newuser);
-                //send back user info for display
-                Player.onLogin(newuser, socket);;
-              });
-            }else{
-              socket.emit('signup failed', {msg : "invalid username"});
-            };
-      });
+      Player.onSignUp(userdata.username, userdata.password, socket);
+
     });
 
 
@@ -237,18 +254,18 @@ io.on('connection', function(socket) {
 
         //update database for new game record
         if(move.win === 'B'){
-          db.User.update({username : colorPlayer['B']},{$inc : {w : 1} }, function (err) { if(err) throw err; });
+          Player.onGameFinish(colorPlayer['B'], {w : 1});
 
-          db.User.update({username : colorPlayer['W']},{$inc : {l : 1} }, function (err) { if(err) throw err; });
+          Player.onGameFinish(colorPlayer['W'], {l : 1});
 
         }else if(move.win === 'W'){
-          db.User.update({username : colorPlayer['W']},{$inc : {w : 1} }, function (err) { if(err) throw err; });
+          Player.onGameFinish(colorPlayer['W'], {w : 1});
 
-          db.User.update({username : colorPlayer['B']},{$inc : {l : 1} }, function (err) { if(err) throw err; });
+          Player.onGameFinish(colorPlayer['B'], {l : 1});
         }else if(move.win === 'D'){
-          db.User.update({username : colorPlayer['B']},{$inc : {d : 1} }, function (err) { if(err) throw err; });
+          Player.onGameFinish(colorPlayer['B'], {d : 1});
 
-          db.User.update({username : colorPlayer['W']},{$inc : {d : 1} }, function (err) { if(err) throw err; });
+          Player.onGameFinish(colorPlayer['B'], {d : 1});
         }
 
         var newboard = {gameId: data.gameId, status: move}
@@ -275,6 +292,23 @@ io.on('connection', function(socket) {
       console.log(gameToQuit + " before delete..");
       delete Game.gamelist[data.gameid];
       console.log(gameToQuit + " after..");
+      if(gameToQuit !== undefined){
+          Game.onQuit(gameToQuit, socket);
+      }
+
+    });
+
+    socket.on('resign', function(data){
+      //retrieve the game to resign
+      var gameToQuit = Game.gamelist[data.gameid];
+
+      // delete the game from Game.gamelist
+      console.log(socket.id + " I clicked resign");
+      console.log(data.gameid + " gid from client..");
+      console.log(gameToQuit + " before delete..");
+      delete Game.gamelist[data.gameid];
+      console.log(gameToQuit + " after..");
+      Player.onGameFinish();
       if(gameToQuit !== undefined){
           Game.onQuit(gameToQuit, socket);
       }
