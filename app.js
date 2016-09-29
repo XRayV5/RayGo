@@ -72,7 +72,7 @@ Player.onLogin = function(userdata, socket) {
 }
 
 
-Player.onSignUp(username, pw, socket){
+Player.onSignUp = function (username, pw, socket){
 
   db.User.find({username : username},   function(err, rcd) {
         if(err) throw err;
@@ -94,7 +94,7 @@ Player.onSignUp(username, pw, socket){
 }
 
 
-Player.onGameFinish(player, result){
+Player.onGameFinish = function (player, result){
     db.User.update({username : player},{$inc : result }, function (err) {
       if(err) throw err;
       console.log("resign = lost +1");
@@ -202,7 +202,6 @@ io.on('connection', function(socket) {
 
         } else {
           console.log( 'User retrieved from DB' );
-          console.log(rcds);
 
           //send back user info for display
           // register the user to online user list
@@ -308,8 +307,14 @@ io.on('connection', function(socket) {
       console.log(gameToQuit + " before delete..");
       delete Game.gamelist[data.gameid];
       console.log(gameToQuit + " after..");
-      Player.onGameFinish();
       if(gameToQuit !== undefined){
+          for(var k in gameToQuit.players){
+            if(socket.id === k){
+              Player.onGameFinish(k, {l : 1});
+            }else{
+              Player.onGameFinish(k, {w : 1});
+            }
+          }
           Game.onQuit(gameToQuit, socket);
       }
 

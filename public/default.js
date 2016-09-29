@@ -252,7 +252,7 @@
 
           $('#resign').off();
           $('#resign').click(function(){
-            socket.emit('quit', { gameid : local.in_game});
+            socket.emit('resign', { gameid : local.in_game});
           });
 
           $('#quit').off();
