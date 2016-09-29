@@ -38,10 +38,6 @@
         local.username = data.user.username;
         // parepare page
         onLogin(data);
-
-        // dispay username
-
-
       });
 
       socket.on('login failed', function(data) {
@@ -107,7 +103,7 @@
                   local.render.showWinCombo(data.status.run);
               }else if(data.status.win !== false && data.status.win !== 'D'){
                 //lose
-                promptWin("You suck...");
+                promptWin("You lost...");
                 local.render.showWinCombo(data.status.run);
               }else if(data.status.win == 'D'){
                 render.promptWin("Draw...");
@@ -124,6 +120,9 @@
         }else{
           $('#' + data.status.turn).css('background-color','red');
         }
+
+
+        //
         $('#gamelog').empty();
         data.status.track.forEach(function(step){
           var s = step.split("_");
@@ -134,7 +133,6 @@
             $('#gamelog').append('<p id='+ step +'>White at (' + s[0] + ',' + s[1] + ')');
             $('#' + step).css('color','white');
           }
-
         });
         updateScroll('gamelog');
       }
@@ -157,13 +155,11 @@
         //display use record
         showUser(data.user);
 
-        //updateUserList
+        //updateUserList & gamelist
         reloadUserList(data.playerlist);
-
         reloadGameList(data.gamelist);
 
         //update game list
-
         $('#login-page').hide();
 
         // hide board
@@ -171,8 +167,6 @@
         $('.main').hide();
 
         $('#page-lobby').show();
-
-
       }
 
       function showUser(user) {
@@ -193,7 +187,6 @@
           $li.text(info);
           $('#game-list').append($li);
         }
-
       }
 
       var reloadUserList = function( playerlist ) {
@@ -239,19 +232,11 @@
       function initGame (game, color, socket) {
 
         // might need to empty the board element to clear last game board
-        var elemt = $('#board')[0];
-        local.playerColor = color;
-        local.render = Draw(socket, game, color, elemt);
-        local.in_game = game.id
+          var elemt = $('#board')[0];
+          local.playerColor = color;
+          local.render = Draw(socket, game, color, elemt);
+          local.in_game = game.id
 
-      //   <div class="chip">
-      //    <img src="/img/black-dot.png" alt="B">
-      //    Jane Doe <span>'s turn</span>
-      //   </div>
-      //  <div class="chip">
-      //   <img src="/img/whitedot.png" alt="W">
-      //   Jane Doe
-      //  </div>
           $("#B span").empty();
           $("#W span").empty();
           $('#chatdiv').empty();
@@ -263,33 +248,28 @@
             }else{
               $('#'+game.players[k]).append("<span class = 'turn'>"+ k + "</span>");
             }
-
           }
 
+          $('#resign').off();
           $('#resign').click(function(){
-
-            // for testing
-            // local.render.restart();
             socket.emit('quit', { gameid : local.in_game});
-
           });
 
+          $('#quit').off();
           $('#quit').click(function(){
-            // for testing
-            // local.render.restart();
             $('#game-modal').hide();
             socket.emit('quit', { gameid : local.in_game});
           });
+
+          $('#again').off();
           $('#again').click(function(){
-            // for testing
-            // local.render.restart();
             $('#game-modal').hide();
             local.render.restart();
             socket.emit('reset', {gameid : local.in_game});
           });
+
+          $('#close').off();
           $('#close').click(function(){
-            // for testing
-            // local.render.restart();
             $('#game-modal').hide();
           });
 
@@ -364,9 +344,5 @@
         $('#lobbychatdiv').append($msg);
         updateScroll('lobbychatdiv');
       });
-
-
-
-
 
 })();

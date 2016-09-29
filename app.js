@@ -102,6 +102,11 @@ Game.onQuit = function(game, socket){
 
   var playerId = socket.id;
   var opponentId;
+  
+  // retrieve opponentId
+  for(var k in game.players){
+    if(k !== playerId) opponentId = k;
+  }
 
   // update both players game status
   for(var k in game.players){
@@ -114,9 +119,6 @@ Game.onQuit = function(game, socket){
   // get player info from db
   // notify both players to leave game
   //later will add active game info in package too
-  for(var k in game.players){
-    if(k !== playerId) opponentId = k;
-  }
 
   db.User.find({username : playerId}, function(err, rcd){
     if(err) throw err;
@@ -349,8 +351,6 @@ io.on('connection', function(socket) {
               Player.playerlist[k].socket.emit('gametalk', { from : socket.id, message : msg.message });
             }
           }
-
-
       });
 
 
