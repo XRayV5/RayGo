@@ -2,9 +2,9 @@
 var mongoose = require( 'mongoose' );
 var UUID = require('uuid');
 
+var db_uri = process.env.MONGODB_URI || 'mongodb://localhost/raygo';
 
-
- mongoose.connect('mongodb://localhost/raygo', function(err) {
+ mongoose.connect(db_uri, function(err) {
   if(err){
     console.log(err);
   }else{

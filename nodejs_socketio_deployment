@@ -1,0 +1,43 @@
+0. specify the node version in package.json
+
+ node --version
+ "engines": {
+   "node": "6.4.0"
+ }
+
+1. create Procfile at the root dir
+
+touch Procfile
+echo 'web: node app.js' >> Procfile
+
+  maybe need:
+  echo 'node_modules' >> .gitignore
+  echo 'npm-debug.log' >> .gitignore
+  echo '.DS_Store' >> .gitignore
+
+
+2. create project on heroku
+
+heroku create --name
+
+
+//add mongoDB addons
+heroku addons:create mongolab
+
+heroku config | grep MONGODB_URI
+
+
+git push heroku master
+
+3.SCALE the app
+
+heroku ps:scale web=1
+
+  //to check the running process
+  heroku ps
+  //to see logs
+  heroku logs --tail
+
+4.enable session affinity
+
+heroku features:enable http-session-affinity
