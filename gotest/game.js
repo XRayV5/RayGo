@@ -192,7 +192,6 @@ var Game =  function() {
     }
 
     function checkDraw(crtBrd){
-      var space = 0;
       for (var i = 0; i < crtBrd.length; i++){
         for(var j = 0; j < crtBrd[i].length; j++){
           if(crtBrd[i][j] === ''){
@@ -202,6 +201,220 @@ var Game =  function() {
       }
       return true;
     }
+
+  function leftright(crtBrd, x, y, flg, pces){
+    var win = false;
+    var cter = 0;
+    var lftbd = y + 1 > pces ? pces : y + 1;
+    var rhtbd = crtBrd.length - y > pces ? pces : crtBrd.length - y;
+
+    for (var i = 0; i < lftbd ; i++){
+      if(crtBrd[x][y-i].includes(flg)){
+        cter++;
+        if(cter === pces){
+          win = [];
+          t = 0;
+          while(t < pces){
+            console.log("winTrack " + crtBrd[x][y-i+t]);
+            win.push(crtBrd[x][y-i+t]);
+            t++;
+          }
+          return win;
+        }
+      }else{
+        break;
+      }
+    }
+
+    for (var j = 1; j < rhtbd; j++){
+      if(crtBrd[x][y+j].includes(flg)){
+        cter++;
+        if(cter === pces){
+          win = [];
+          t = 0;
+          while(t < pces){
+            console.log("winTrack " + crtBrd[x][y+j-t]);
+            win.push(crtBrd[x][y+j-t]);
+            t++;
+          }
+          return win;
+        }
+      }else{
+        cter = 0;
+      }
+    }
+
+    return win;
+
+  }
+
+
+  function updown(crtBrd, x, y, flg, pces){
+    var win = false;
+    var cter = 0;
+    var lftbd = x + 1 > pces ? pces : x + 1;
+    var rhtbd = crtBrd.length - x > pces ? pces : crtBrd.length - x;
+
+    for (var i = 0; i < lftbd ; i++){
+      if(crtBrd[x-i][y].includes(flg)){
+        cter++;
+        if(cter === pces){
+          win = [];
+          t = 0;
+          while(t < pces){
+            console.log("winTrack " + crtBrd[x-i+t][y]);
+            win.push(crtBrd[x-i+t][y]);
+            t++;
+          }
+          return win;
+        }
+      }else{
+        break;
+      }
+    }
+
+    for (var j = 1; j < rhtbd; j++){
+      if(crtBrd[x+j][y].includes(flg)){
+        cter++;
+        if(cter === pces){
+          win = [];
+          t = 0;
+          while(t < pces){
+            console.log("winTrack " + crtBrd[x+j-t][y]);
+            win.push(crtBrd[x+j-t][y]);
+            t++;
+          }
+          return win;
+        }
+      }else{
+        cter = 0;
+      }
+    }
+
+    return win;
+  }
+
+  function diagnal(crtBrd, x, y, flg, pces){
+    var win = false;
+    var i = 0;
+    var cter = 0;
+    while(x + i < crtBrd.length && y + i < crtBrd.length ) {
+
+      if(crtBrd[x + i][y + i].includes(flg)){
+        cter++;
+        if(cter === pces){
+          win = [];
+          t = 0;
+          while(t < pces){
+            console.log("winTrack " + crtBrd[x+t][y+t]);
+            win.push(crtBrd[x+t][y+t]);
+            t++;
+          }
+          return win;
+        }
+      }else{
+          break;
+      }
+      i++;
+    }
+    i = 1;
+    while(x - i >= 0 && y - i >= 0) {
+      if(crtBrd[x - i][y - i].includes(flg)){
+        cter++;
+        if(cter === pces){
+          win = [];
+          t = 0;
+          while(t < pces){
+            console.log("winTrack " + crtBrd[x-i+t][y-i+t]);
+            win.push(crtBrd[x-i+t][y-i+t]);
+            t++;
+          }
+          return win;
+        }
+      }else{
+          break;
+      }
+      i++;
+    }
+    return win;
+  }
+
+  function diagnalRev(crtBrd, x, y, flg, pces){
+    var win = false;
+    var i = 0;
+    var cter = 0;
+    while(x + i < crtBrd.length && y - i >= 0 ) {
+
+      if(crtBrd[x + i][y - i].includes(flg)){
+        cter++;
+        if(cter === pces){
+          win = [];
+          t = 0;
+          while(t < pces){
+            console.log("winTrack " + crtBrd[x+t][y-t]);
+            win.push(crtBrd[x+t][y-t]);
+            t++;
+          }
+          return win;
+        }
+      }else{
+          break;
+      }
+      i++;
+    }
+    i = 1;
+    while(x - i >= 0 && y + i < crtBrd.length) {
+      if(crtBrd[x - i][y + i].includes(flg)){
+        cter++;
+        if(cter === pces){
+          win = [];
+          t = 0;
+          while(t < pces){
+            console.log("winTrack " + crtBrd[x-i+t][y+i-t]);
+            win.push(crtBrd[x-i+t][y+i-t]);
+            t++;
+          }
+          return win;
+        }
+      }else{
+          break;
+      }
+      i++;
+    }
+    return win;
+  }
+
+  function checkWin(crtBrd, x, y, flg, pces){
+    var hrzn = leftright(crtBrd, x, y, flg, pces);
+    var vert = updown(crtBrd, x, y, flg, pces);
+    var diag = diagnal(crtBrd, x, y, flg, pces);
+    var anti = diagnalRev(crtBrd, x, y, flg, pces);
+    if(hrzn!==false){
+      console.log("The winner is "+flg+" horizon");
+      console.log(hrzn);
+      //winTrack = hrzn;
+      return hrzn;
+    }else if(vert!==false){
+      console.log("The winner is "+flg+" vertical");
+      console.log(vert);
+      return vert;
+    }else if(diag!==false){
+      console.log("The winner is "+flg+" diag");
+      console.log("###", diag);
+      winTrack = diag;
+      return diag;
+    }else if(anti!==false){
+      console.log("The winner is "+flg+" anti-diag");
+      console.log(anti);
+      return anti;
+    }else if(checkDraw(crtBrd)){
+      console.log("All Tied!");
+      return "draw";
+    }else{
+      return false;
+    }
+  }
+
 
 
   function winOrloss(crtBrd,flg){
@@ -253,7 +466,8 @@ var Game =  function() {
           turn = 'B';
         }
 
-        var result = winOrloss(board, side);
+        // var result = winOrloss(board, side);
+        var result = checkWin(board, x, y, side, 5);
         if(result!==false){
           over = true;
           if(typeof result === "object"){
@@ -285,7 +499,6 @@ var Game =  function() {
     getOver : function() { return over;},
     getTurn : function () { return turn;},
     //setTurn : function (flg) {  turn = flg; return turn;}
-
 
   }
 

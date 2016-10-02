@@ -1,3 +1,7 @@
+html {
+	font-family: GillSans, Calibri, Trebuchet, sans-serif;
+}
+
 body {
 	overflow-y: auto;
 	display: flex;
@@ -12,6 +16,10 @@ body {
 
 }
 
+
+#login-page{
+	display: none;
+}
 
 #loginWrap{
 	background-color:lightgray;
@@ -138,7 +146,7 @@ body {
 
 /* Styling of Game page */
 .main {
-	display: none;
+	/*display: none;*/
 	margin:auto;
 	width:100%;
 }
